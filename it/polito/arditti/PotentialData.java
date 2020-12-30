@@ -133,4 +133,22 @@ public class PotentialData {
         }
         return result;
     }
+
+    public PotentialData extractSample(int size){
+        PotentialData sample = new PotentialData(game);
+        if (size >= potentialValues.keySet().size()){
+            return this;
+        }
+        else{
+            int item = new Random().nextInt(size);
+            int i = 0;
+            for(Map.Entry<Configuration,Double> entry : potentialValues.entrySet()){
+                if (i == item)
+                    sample.add(entry.getKey(), entry.getValue());
+                i++;
+            }
+        }
+        return sample;
+    }
 }
+
