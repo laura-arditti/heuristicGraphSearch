@@ -2,10 +2,12 @@ package it.polito.arditti;
 
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Tools {
 
-    public int getRandom(List<Double> priorities) {
+    public static int getRandomInt(List<Double> priorities) {
         Random rand = new Random();
         double totalSum = priorities.stream().mapToDouble(i->i).sum();
         double index = rand.nextDouble()*totalSum;
@@ -16,5 +18,11 @@ public class Tools {
             i++;
         }
         return Math.max(0,i-1);
+    }
+
+    public static int getRandomFromList(List<Integer> elements) {
+        Random rand = new Random();
+        int index = rand.nextInt();
+        return elements.get(index);
     }
 }
