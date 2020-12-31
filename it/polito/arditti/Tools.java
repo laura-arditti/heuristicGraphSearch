@@ -22,7 +22,7 @@ public class Tools {
 
     public static int getRandomFromList(List<Integer> elements) {
         Random rand = new Random();
-        int index = rand.nextInt();
+        int index = rand.nextInt(elements.size());
         return elements.get(index);
     }
 }

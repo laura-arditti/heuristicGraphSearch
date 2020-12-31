@@ -55,18 +55,21 @@ public class HeuristicOptimization {
 
     private LocalSearchResult localSearch(SimpleGraph<Integer, Integer[]> currentGraph, Map<Integer, Integer> estimatedDegrees) {
         boolean isAccepted = false;
-        List<Double> priorities = new ArrayList<>();
+        // inizializza priorities come lista di 0 e poi aggiungi le priorita con set
+        Double[] prioritiesArray = new Double[estimatedDegrees.keySet().size()];
         for (Integer vertex : estimatedDegrees.keySet()){
             int currentDegree = currentGraph.degreeOf(vertex);
             double priority = estimatedDegrees.get(vertex)-currentDegree;
-            priorities.add(vertex,priority);
+            prioritiesArray[vertex] = priority;
         }
+        List<Double> priorities = Arrays.asList(prioritiesArray);
         double temperature = 1.0;
         Integer[] modifiedLink = new Integer[2];
+        boolean isRemoved;
         while (!isAccepted){
             Integer selectedVertex = Tools.getRandomInt(priorities);
             Random rand = new Random();
-            boolean isRemoved= rand.nextBoolean();
+            isRemoved= rand.nextBoolean();
             if(!isRemoved){
                 SimpleGraph<Integer, Integer[]> finalCurrentGraph1 = currentGraph;
                 Set<Integer> neighbors = currentGraph.outgoingEdgesOf(selectedVertex)
@@ -109,10 +112,9 @@ public class HeuristicOptimization {
                     currentGraph = candidate;
                     modifiedLink = new Integer[]{selectedVertex,selectedNeighbor};
                 }
-                return new LocalSearchResult(currentGraph, modifiedLink, isRemoved);
             }
-
         }
+        return new LocalSearchResult(currentGraph, modifiedLink, isRemoved);
     }
 
     private boolean evaluateAcceptance(SimpleGraph<Integer, Integer[]> currentGraph, SimpleGraph<Integer, Integer[]> candidate, double temperature) {
