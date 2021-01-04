@@ -1,6 +1,11 @@
 package it.polito.arditti;
 
+import org.jgrapht.graph.SimpleGraph;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class TransitionData {
     List<Transition> path;
@@ -26,5 +31,24 @@ public class TransitionData {
 
     int size(){
         return path.size();
+    }
+
+    public List<Transition> getPath() {
+        return path;
+    }
+
+    public Set<Transition> getCompatibleTransitions(Transition transition, SimpleGraph<Integer, Integer[]> currentGraph) {
+        Set<Transition> compatibleTransitions = new HashSet<>();
+        Integer movingPlayer = transition.getMovingPlayer();
+        SimpleGraph<Integer, Integer[]> finalCurrentGraph = currentGraph;
+        List<Integer> neighbors = currentGraph.outgoingEdgesOf(movingPlayer)
+                .stream().map(edge-> finalCurrentGraph.getEdgeTarget(edge))
+                .collect(Collectors.toList());
+        for (Transition otherTransition : this.path){
+            if(transition.isCompatible(otherTransition,neighbors)){
+                compatibleTransitions.add(otherTransition);
+            }
+        }
+        return compatibleTransitions;
     }
 }
