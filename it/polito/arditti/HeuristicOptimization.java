@@ -131,9 +131,8 @@ public class HeuristicOptimization {
                 newClique.remove(player);
                 newCliques.add(newClique);
             }
-
-
         }
+        return new Separation(nPlayers,newCliques);
     }
 
     private Separation cliqueAnalisys(Separation currentSeparation, Integer[] modifiedLink) {
