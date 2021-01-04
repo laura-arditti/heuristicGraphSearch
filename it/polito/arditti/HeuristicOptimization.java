@@ -55,14 +55,12 @@ public class HeuristicOptimization {
 
     private LocalSearchResult localSearch(SimpleGraph<Integer, Integer[]> currentGraph, Map<Integer, Integer> estimatedDegrees) {
         boolean isAccepted = false;
-        // inizializza priorities come lista di 0 e poi aggiungi le priorita con set
-        Double[] prioritiesArray = new Double[estimatedDegrees.keySet().size()];
+        List<Double> priorities = new ArrayList<Double>(Collections.nCopies(estimatedDegrees.keySet().size(), 0.0));
         for (Integer vertex : estimatedDegrees.keySet()){
             int currentDegree = currentGraph.degreeOf(vertex);
             double priority = estimatedDegrees.get(vertex)-currentDegree;
-            prioritiesArray[vertex] = priority;
+            priorities.set(vertex,priority);
         }
-        List<Double> priorities = Arrays.asList(prioritiesArray);
         double temperature = 1.0;
         Integer[] modifiedLink = new Integer[2];
         boolean isRemoved;
