@@ -14,6 +14,11 @@ public class Separation {
         this.groups = new HashSet<>();
     }
 
+    public Separation(int nPlayers,Set<Set<Integer>> groups) {
+        this.nPlayers = nPlayers;
+        this.groups = groups;
+    }
+
     public void add(Set<Integer> group) {
         boolean isMaximal = true;
         for (Set<Integer> otherGroup: groups) {
@@ -71,5 +76,20 @@ public class Separation {
             }
         }
         return graph;
+    }
+
+    public Set<Set<Integer>> getCliques(Integer[] modifiedLink) {
+        Set<Integer> couple = Set.of(modifiedLink);
+        Set<Set<Integer>> cliques = new HashSet<>();
+        for(Set<Integer> group : groups){
+            if(group.containsAll(couple)){
+                cliques.add(group);
+            }
+        }
+        return cliques;
+    }
+
+    public Set<Set<Integer>> getCliques() {
+        return this.groups;
     }
 }
