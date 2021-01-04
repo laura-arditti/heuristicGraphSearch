@@ -11,6 +11,7 @@ public class HeuristicOptimization {
     private double tolerance;
     private int numSteps;
     private ObjectiveFunction objectiveFunction;
+    private PotentialData potentialData;
 
 
     public HeuristicOptimization(TransitionData data, int nPlayers, double tolerance, int numSteps) {
@@ -19,6 +20,7 @@ public class HeuristicOptimization {
         this.tolerance = tolerance;
         this.numSteps = numSteps;
         this.objectiveFunction = new ObjectiveFunction(data);
+        this.potentialData = data.toPotentialData();
     }
 
 
@@ -28,11 +30,13 @@ public class HeuristicOptimization {
         SimpleGraph<Integer,Integer[]> currentGraph = currentSeparation.buildUndirectedGraph();
         Map<Integer,Integer> estimatedDegrees = estimateDegrees(currentGraph,sampleSize/(double)data.size());
         for(int t=0; t<numSteps; t++){
-            LocalSearchResult result = localSearch(currentGraph, estimatedDegrees);
+            double temperature = 1.0;
+            double threshold = 1.0;
+            LocalSearchResult result = localSearch(currentGraph, estimatedDegrees, temperature);
             if(result.isRemoved) {
                 currentSeparation = linkRegret(currentSeparation, result.modifiedLink);
             }else{
-                currentSeparation = cliqueAnalisys(currentSeparation, result.modifiedLink);
+                currentSeparation = cliqueAnalisys(currentSeparation, result.modifiedLink,threshold);
             }
             currentGraph = currentSeparation.buildUndirectedGraph();
         }
@@ -49,13 +53,12 @@ public class HeuristicOptimization {
     }
 
     private Separation initializeSeparation(int sampleSize) {
-        PotentialData potentialData = this.data.toPotentialData();
         PotentialData sample = potentialData.extractSample(sampleSize);
         return sample.getSeparation();
 
     }
 
-    private LocalSearchResult localSearch(SimpleGraph<Integer, Integer[]> currentGraph, Map<Integer, Integer> estimatedDegrees) {
+    private LocalSearchResult localSearch(SimpleGraph<Integer, Integer[]> currentGraph, Map<Integer, Integer> estimatedDegrees, double temperature) {
         boolean isAccepted = false;
         List<Double> priorities = new ArrayList<Double>(Collections.nCopies(estimatedDegrees.keySet().size(), 0.0));
         for (Integer vertex : estimatedDegrees.keySet()){
@@ -63,7 +66,6 @@ public class HeuristicOptimization {
             double priority = estimatedDegrees.get(vertex)-currentDegree;
             priorities.set(vertex,priority);
         }
-        double temperature = 1.0;
         Integer[] modifiedLink = new Integer[2];
         Boolean isRemoved = null;
         while (!isAccepted){
@@ -129,13 +131,53 @@ public class HeuristicOptimization {
             for(Integer player : modifiedLink){
                 Set<Integer> newClique = Set.copyOf(clique);
                 newClique.remove(player);
+                // add check for maximality
                 newCliques.add(newClique);
             }
         }
         return new Separation(nPlayers,newCliques);
     }
 
-    private Separation cliqueAnalisys(Separation currentSeparation, Integer[] modifiedLink) {
+    private Separation cliqueAnalisys(Separation currentSeparation, Integer[] modifiedLink, double threshold) {
+        Integer playerI = modifiedLink[0];
+        Integer playerJ= modifiedLink[1];
+        Set<Set<Integer>> cliquesI = currentSeparation.getCliques(playerI);
+        Set<Set<Integer>> cliquesJ = currentSeparation.getCliques(playerJ);
+        Map<Set<Integer>,Double> subcliquePriorities = new HashMap<>();
+        for( Set<Integer> cliqueI : cliquesI){
+            Set<Integer> cliqueIWithoutI = Set.copyOf(cliqueI);
+            cliqueIWithoutI.remove(playerI);
+            Set<Set<Integer>> powerSet = Tools.powerSet(cliqueIWithoutI);
+            for (Set<Integer> K : powerSet){
+                K.add(playerI);
+                double priority = 1.0/K.size();
+                for (Set<Integer> cliqueJ : cliquesJ){
+                    Set<Integer> intersection = new HashSet<Integer>(K);
+                    intersection.retainAll(cliqueJ);
+                    Set<Integer> union = new HashSet<Integer>(K);
+                    union.addAll(cliqueJ);
+                    priority+= intersection.size()/union.size();
+                }
+                subcliquePriorities.put(K,priority);
+            }
+        }
+        Set<Set<Integer>> newGroups = currentSeparation.getCliques();
+        for (Set<Integer> subcliqueI : subcliquePriorities.keySet()){
+            if (subcliquePriorities.get(subcliqueI)> threshold){
+                Set<Integer> candidate = new HashSet<>(subcliqueI);
+                candidate.add(playerJ);
+                boolean isGroup = potentialData.checkDependence(candidate);
+                if(isGroup){
+                    newGroups.add(candidate);
+                    candidate.remove(playerJ);
+                    newGroups.remove(candidate);
+                }
+                else{
+                    newGroups.add(Set.of(modifiedLink));
+                }
+            }
+        }
+        return new Separation(nPlayers,newGroups);
     }
 
 

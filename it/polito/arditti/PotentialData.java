@@ -150,5 +150,8 @@ public class PotentialData {
         }
         return sample;
     }
+
+    public boolean checkDependence(Set<Integer> candidate) {
+    }
 }
 
