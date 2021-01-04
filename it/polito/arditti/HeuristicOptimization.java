@@ -10,6 +10,7 @@ public class HeuristicOptimization {
     private int nPlayers;
     private double tolerance;
     private int numSteps;
+    private ObjectiveFunction objectiveFunction;
 
 
     public HeuristicOptimization(TransitionData data, int nPlayers, double tolerance, int numSteps) {
@@ -17,6 +18,7 @@ public class HeuristicOptimization {
         this.nPlayers = nPlayers;
         this.tolerance = tolerance;
         this.numSteps = numSteps;
+        this.objectiveFunction = new ObjectiveFunction(data);
     }
 
 
@@ -63,7 +65,7 @@ public class HeuristicOptimization {
         }
         double temperature = 1.0;
         Integer[] modifiedLink = new Integer[2];
-        boolean isRemoved;
+        Boolean isRemoved = null;
         while (!isAccepted){
             Integer selectedVertex = Tools.getRandomInt(priorities);
             Random rand = new Random();
@@ -92,9 +94,9 @@ public class HeuristicOptimization {
                 }
             }
             else{
-                SimpleGraph<Integer, Integer[]> finalCurrentGraph = currentGraph;
+                SimpleGraph<Integer, Integer[]> finalCurrentGraph2 = currentGraph;
                 List<Integer> neighbors = currentGraph.outgoingEdgesOf(selectedVertex)
-                        .stream().map(edge-> finalCurrentGraph.getEdgeTarget(edge))
+                        .stream().map(edge-> finalCurrentGraph2.getEdgeTarget(edge))
                         .collect(Collectors.toList());
                 Integer selectedNeighbor = Tools.getRandomFromList(neighbors);
                 SimpleGraph<Integer,Integer[]> candidate = new SimpleGraph<Integer,Integer[]>(null,null,false);
@@ -116,6 +118,7 @@ public class HeuristicOptimization {
     }
 
     private boolean evaluateAcceptance(SimpleGraph<Integer, Integer[]> currentGraph, SimpleGraph<Integer, Integer[]> candidate, double temperature) {
+        Double currentObjective = objectiveFunction.evaluateObjective(currentGraph);
     }
 
     private Separation cliqueAnalisys(Separation currentSeparation, Integer[] modifiedLink) {
