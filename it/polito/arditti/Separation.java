@@ -78,6 +78,7 @@ public class Separation {
         return graph;
     }
 
+    // get cliques containing a couple of players
     public Set<Set<Integer>> getCliques(Integer[] modifiedLink) {
         Set<Integer> couple = Set.of(modifiedLink);
         Set<Set<Integer>> cliques = new HashSet<>();
@@ -89,7 +90,18 @@ public class Separation {
         return cliques;
     }
 
+    // get all cliques/groups from the separation
     public Set<Set<Integer>> getCliques() {
         return this.groups;
+    }
+
+    public Set<Set<Integer>> getCliques(Integer playerI) {
+        Set<Set<Integer>> cliques = new HashSet<>();
+        for(Set<Integer> group : groups){
+            if(group.contains(playerI)){
+                cliques.add(group);
+            }
+        }
+        return cliques;
     }
 }
