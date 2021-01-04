@@ -1,23 +1,13 @@
 package it.polito.arditti;
 
+import org.jgrapht.graph.SimpleGraph;
+
+import java.util.List;
+
 public class Transition {
     private final Game game;
     private final Configuration start;
     private final Configuration end;
-
-    public double getPotentialChange() {
-        return potentialChange;
-    }
-
-    public Configuration getStart() {
-        return start;
-    }
-
-    public Configuration getEnd() {
-        return end;
-    }
-
-
     private final double potentialChange;
 
     public Transition(Game game, Configuration start, Configuration end, double potentialChange) {
@@ -39,4 +29,37 @@ public class Transition {
         return movingPlayer;
     }
 
+    public double getPotentialChange() {
+        return potentialChange;
+    }
+
+    public Configuration getStart() {
+        return start;
+    }
+
+    public Configuration getEnd() {
+        return end;
+    }
+
+
+    public boolean isCompatible(Transition otherTransition, List<Integer> neighbors) {
+        boolean isCompatible=true;
+        if(this.getMovingPlayer() != otherTransition.getMovingPlayer()){
+            isCompatible=false;
+            return isCompatible;
+        }
+        int movingPlayer=this.getMovingPlayer();
+        if(this.getStart().getActions()[movingPlayer] != otherTransition.getStart().getActions()[movingPlayer]
+        || this.getEnd().getActions()[movingPlayer] != otherTransition.getEnd().getActions()[movingPlayer]){
+            isCompatible=false;
+            return isCompatible;
+        }
+        for(Integer neighbor : neighbors){
+            if(this.getStart().getActions()[neighbor] != otherTransition.getStart().getActions()[neighbor]){
+                isCompatible=false;
+                return isCompatible;
+            }
+        }
+        return isCompatible;
+    }
 }
