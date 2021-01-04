@@ -121,10 +121,22 @@ public class HeuristicOptimization {
         Double currentObjective = objectiveFunction.evaluateObjective(currentGraph);
     }
 
-    private Separation cliqueAnalisys(Separation currentSeparation, Integer[] modifiedLink) {
+    private Separation linkRegret(Separation currentSeparation, Integer[] modifiedLink) {
+        Set<Set<Integer>> involvedCliques = currentSeparation.getCliques(modifiedLink);
+        Set<Set<Integer>> newCliques = currentSeparation.getCliques();
+        newCliques.removeAll(involvedCliques);
+        for(Set<Integer> clique : involvedCliques){
+            for(Integer player : modifiedLink){
+                Set<Integer> newClique = Set.copyOf(clique);
+                newClique.remove(player);
+                newCliques.add(newClique);
+            }
+
+
+        }
     }
 
-    private Separation linkRegret(Separation currentSeparation, Integer[] modifiedLink) {
+    private Separation cliqueAnalisys(Separation currentSeparation, Integer[] modifiedLink) {
     }
 
 
