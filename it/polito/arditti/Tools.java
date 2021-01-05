@@ -42,4 +42,14 @@ public class Tools {
         }
         return sets;
     }
+
+    public static Set<Integer> binaryToSet(int binaryRepresentation, int numElements){
+        Set<Integer> set = new HashSet<>();
+        for (int element = 0; element <= numElements; element++){
+            if (((binaryRepresentation>>element)&1)==1){
+                set.add(element);
+            }
+        }
+        return set;
+    }
 }
