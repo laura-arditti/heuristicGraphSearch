@@ -104,4 +104,22 @@ public class Separation {
         }
         return cliques;
     }
+
+    public Separation maximalize() {
+        Separation result = new Separation(nPlayers);
+        for (Set<Integer> group : this.groups) {
+            boolean keep = true;
+            for (Set<Integer> otherGroup : this.groups){
+                if (otherGroup.containsAll(group)) {
+                    if(!group.equals(otherGroup)){
+                        keep = false;
+                    }
+                }
+            }
+            if (keep){
+                result.add(group);
+            }
+        }
+        return result;
+    }
 }
