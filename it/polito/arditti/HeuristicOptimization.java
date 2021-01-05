@@ -120,7 +120,20 @@ public class HeuristicOptimization {
     }
 
     private boolean evaluateAcceptance(SimpleGraph<Integer, Integer[]> currentGraph, SimpleGraph<Integer, Integer[]> candidate, double temperature) {
+        boolean isAccepted = false;
         Double currentObjective = objectiveFunction.evaluateObjective(currentGraph);
+        Double candidateObjective = objectiveFunction.evaluateObjective(candidate);
+        if(candidateObjective<=currentObjective){
+            isAccepted=true;
+        }
+        else{
+            List<Double> probabilities = List.of(1-Math.exp((currentObjective-candidateObjective)/temperature),Math.exp((currentObjective-candidateObjective)/temperature));
+            int index = Tools.getRandomInt(probabilities);
+            if(index==1){
+                isAccepted=true;
+            }
+        }
+        return isAccepted;
     }
 
     private Separation linkRegret(Separation currentSeparation, Integer[] modifiedLink) {

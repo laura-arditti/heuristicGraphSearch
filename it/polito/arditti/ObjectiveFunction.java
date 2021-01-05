@@ -11,6 +11,7 @@ public class ObjectiveFunction {
     public ObjectiveFunction(TransitionData data) {
         this.transitionData = data;
     }
+
     public Double evaluateObjective(SimpleGraph<Integer, Integer[]> currentGraph) {
         Double loss = 0.0;
         for(Transition transition : transitionData.getPath()){
