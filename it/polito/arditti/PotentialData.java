@@ -118,9 +118,9 @@ public class PotentialData {
                     sum += sign*this.potentialValues.get(configuration);
                     sign=-sign;
                 }
-
                 if( sum != 0){
                     areDependent = true;
+                    return areDependent;
                 }
 
                 insideFinished = true;
