@@ -9,6 +9,15 @@ public class Utility {
     private final double[] utility;
     private final Game game;
 
+    /**
+     * Builds an instance of Utility relative to a GameForm and an array
+     * specifying the utility values.
+     * @param game
+     * @param utility is an array containing utility values for a given player.
+     *                Each entry is relative to a corresponding configuration
+     *                of all players. Configurations are ordered in lexicographic
+     *                order (e.g. (0,...,0)->0, (0,...,0,1)->1, etc)222
+     */
     public Utility(Game game, double[] utility) {
         this.game = game;
         this.utility = utility;
