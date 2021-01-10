@@ -124,7 +124,7 @@ public class Utility {
         return result;
     }
 
-    private double getUtility(int[] strategy) {
+    public double getUtility(int[] strategy) {
         int index = 0;
         int factor = 1;
         for (int player =0; player< strategy.length; player++){

@@ -34,4 +34,19 @@ public class PotentialFunction {
                             localPotential));
         }
     }
+
+    public Double getPotential(Configuration configuration) {
+        int[] actions = configuration.getActions();
+        Double value = 0.0;
+        for(Set<Integer> clique : localPotentials.keySet()){
+            int[] cliqueActions =
+                    IntStream.range(0, gameForm.nPlayers)
+                            .filter(player -> clique.contains(player))
+                            .map(player -> actions[player])
+                            .toArray();
+            value += localPotentials
+                    .get(clique).getUtility(cliqueActions);
+        }
+        return value;
+    }
 }
