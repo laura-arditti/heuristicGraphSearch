@@ -2,6 +2,7 @@ package it.polito.arditti;
 
 import org.jgrapht.graph.SimpleGraph;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,6 +11,19 @@ import java.util.stream.Collectors;
 public class TransitionData {
     List<Transition> path;
     GameForm gameForm;
+
+    public TransitionData(GameForm gameForm, int pathLength, PotentialFunction potential){
+        this.path = new ArrayList<>();
+        this.gameForm = gameForm;
+        Configuration start = Configuration.random(gameForm);
+        for (int i = 0; i < pathLength; i++) {
+            Configuration end = start.getRandomComparable();
+            double potentialChange =
+                    potential.getPotential(end) - potential.getPotential(start);
+            Transition transition = new Transition(gameForm, start, end, potentialChange);
+            this.path.add(transition);
+        }
+    }
 
     public TransitionData(List<Transition> path, GameForm gameForm){
         this.path = path;
