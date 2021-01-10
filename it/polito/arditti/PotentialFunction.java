@@ -49,4 +49,8 @@ public class PotentialFunction {
         }
         return value;
     }
+
+    public SimpleGraph<Integer, Integer[]> getGraph() {
+        return graph;
+    }
 }
