@@ -1,7 +1,5 @@
 package it.polito.arditti;
 
-import org.jgrapht.graph.SimpleGraph;
-
 import java.util.List;
 
 public class Transition {

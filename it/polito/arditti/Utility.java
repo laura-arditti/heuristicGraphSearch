@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class Utility {
     private final double[] utility;
-    private final Game game;
+    private final GameForm game;
 
     /**
      * Builds an instance of Utility relative to a GameForm and an array
@@ -18,12 +18,12 @@ public class Utility {
      *                of all players. Configurations are ordered in lexicographic
      *                order (e.g. (0,...,0)->0, (0,...,0,1)->1, etc)222
      */
-    public Utility(Game game, double[] utility) {
+    public Utility(GameForm game, double[] utility) {
         this.game = game;
         this.utility = utility;
     }
 
-    public Utility(Game game){
+    public Utility(GameForm game){
         this.game = game;
         this.utility= new double[game.getNConfigurations()];
     }
