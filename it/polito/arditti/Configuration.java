@@ -57,4 +57,8 @@ public class Configuration {
     public int[] getActions() {
         return this.actions;
     }
+
+    public boolean hasNext(){
+        return index>0;
+    }
 }
