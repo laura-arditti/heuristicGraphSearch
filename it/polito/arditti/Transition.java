@@ -3,12 +3,12 @@ package it.polito.arditti;
 import java.util.List;
 
 public class Transition {
-    private final Game game;
+    private final GameForm game;
     private final Configuration start;
     private final Configuration end;
     private final double potentialChange;
 
-    public Transition(Game game, Configuration start, Configuration end, double potentialChange) {
+    public Transition(GameForm game, Configuration start, Configuration end, double potentialChange) {
         this.game = game;
         this.start = start;
         this.end = end;

@@ -1,34 +1,28 @@
 package it.polito.arditti;
 
+import org.jgrapht.generate.GnmRandomGraphGenerator;
+import org.jgrapht.graph.SimpleGraph;
+
 import java.util.Random;
-import org.jgrapht.graph.DefaultUndirectedGraph;
-// import org.jgrapht.graph.*;
 
 public class Main {
 
     public static void main(String[] args) {
-        // write your code here
         int nPlayers = 4;
+        int nEdges = 5;
         int[] nActions = {3, 4, 3, 2};
-        Random rd = new Random();
-        double[][] utilities = new double[4][72];
-        for (int x = 0; x <72 ; x++) {
-            for (int player = 0; player < nPlayers; player++) {
-                utilities[player][x] = rd.nextDouble();
-             }
-        }
-        //for (int x = 0; x < 12; x++) {
-           // for (int player = 0; player < nPlayers; player++) {
-          //      utilities[player][x] = 0;
-         //   }
-        //}
-        Game game = new Game(nPlayers, nActions, utilities);
-        Splitting splitting = game.getSplitting();
-        System.out.println(splitting);
+        int pathLenght = 40;
+        int sampleSize = 20;
+        SimpleGraph<Integer, Integer[]> graph = new SimpleGraph<>(null, null, false);
+        new GnmRandomGraphGenerator<Integer, Integer[]> (nPlayers,nEdges)
+                .generateGraph(graph);
+        GameForm gameForm = new GameForm(nPlayers,nActions);
+        PotentialFunction potential = new PotentialFunction(gameForm,graph);
+        TransitionData transitionData = new TransitionData(gameForm, pathLenght, potential);
 
-        PotentialGame potentialGame = new PotentialGame(nPlayers, nActions, utilities);
-        Splitting normalizedSplitting = potentialGame.getNormalizedSplitting();
-        System.out.println(normalizedSplitting);
+        HeuristicOptimization optimizer = new HeuristicOptimization(transitionData,nPlayers,0.1, 1000);
+        Separation heuristicSeparation = optimizer.run(sampleSize);
+        System.out.println(heuristicSeparation.toString());
 
     }
 
