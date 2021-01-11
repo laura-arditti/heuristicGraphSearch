@@ -5,24 +5,24 @@ import java.util.Random;
 import java.util.stream.IntStream;
 
 public class Configuration {
-    private final GameForm game;
+    private final GameForm gameForm;
     private final int[] actions;
     private final int index;
 
-    public Configuration(GameForm game) {
-        this.game = game;
-        this.actions = new int[game.nPlayers];
-        for (int player = 0; player < game.nPlayers; player++) {
+    public Configuration(GameForm gameForm) {
+        this.gameForm = gameForm;
+        this.actions = new int[gameForm.nPlayers];
+        for (int player = 0; player < gameForm.nPlayers; player++) {
             this.actions[player] = 0;
         }
         this.index = 0;
     }
 
-    public Configuration(GameForm game, int[] actions) {
-        this.game = game;
+    public Configuration(GameForm gameForm, int[] actions) {
+        this.gameForm = gameForm;
         this.actions = actions;
-        for (int player = 0; player < game.nPlayers; player++){
-            if (actions[player]<game.nActions[player]-1){
+        for (int player = 0; player < gameForm.nPlayers; player++){
+            if (actions[player]<gameForm.nActions[player]-1){
                 this.index = player;
                 return;
             }
@@ -42,21 +42,21 @@ public class Configuration {
         if( index < 0){
             return null;
         }
-        int[] nextActions = Arrays.copyOf(actions,game.nPlayers);
+        int[] nextActions = Arrays.copyOf(actions,gameForm.nPlayers);
         nextActions[index]++;
         for(int player = 0; player< index-1; player++){
             nextActions[player]=0;
         }
-        Configuration next = new Configuration(game, nextActions);
+        Configuration next = new Configuration(gameForm, nextActions);
         return next;
     }
 
     public Configuration getCloser() {
-        int[] closerActions = Arrays.copyOf(actions,game.nPlayers);
+        int[] closerActions = Arrays.copyOf(actions,gameForm.nPlayers);
         for(int player = 0; player< index; player++){
             closerActions[player]=0;
         }
-        Configuration closer = new Configuration(game, closerActions);
+        Configuration closer = new Configuration(gameForm, closerActions);
         return closer;
     }
 
@@ -70,5 +70,18 @@ public class Configuration {
 
     public boolean hasNext(){
         return index>0;
+    }
+
+    public Configuration getRandomComparable() {
+        Random random = new Random();
+        int movingPlayer = random.nextInt(gameForm.nPlayers);
+        int[] otherActions = IntStream.range(0,gameForm.nActions[movingPlayer]-1)
+                .filter(action -> action != actions[movingPlayer])
+                .toArray();
+        int index = random.nextInt(otherActions.length);
+        int newAction = otherActions[index];
+        int[] newActions = Arrays.copyOf(actions, actions.length);
+        newActions[movingPlayer]=newAction;
+        return new Configuration(gameForm,newActions);
     }
 }
