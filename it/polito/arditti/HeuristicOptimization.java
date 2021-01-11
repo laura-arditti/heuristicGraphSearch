@@ -8,16 +8,14 @@ import java.util.stream.Collectors;
 public class HeuristicOptimization {
     private TransitionData data;
     private int nPlayers;
-    private double tolerance;
     private int numSteps;
     private ObjectiveFunction objectiveFunction;
     private PotentialData potentialData;
 
 
-    public HeuristicOptimization(TransitionData data, int nPlayers, double tolerance, int numSteps) {
+    public HeuristicOptimization(TransitionData data, int nPlayers, int numSteps) {
         this.data = data;
         this.nPlayers = nPlayers;
-        this.tolerance = tolerance;
         this.numSteps = numSteps;
         this.objectiveFunction = new ObjectiveFunction(data);
         this.potentialData = data.toPotentialData();
@@ -29,9 +27,17 @@ public class HeuristicOptimization {
         Separation currentSeparation = initializeSeparation(sampleSize);
         SimpleGraph<Integer,Integer[]> currentGraph = currentSeparation.buildUndirectedGraph();
         Map<Integer,Integer> estimatedDegrees = estimateDegrees(currentGraph,sampleSize/(double)data.size());
+        double temperature = 1.0;
+        double threshold = 1.0;
+        int stepsSinceLastUpdate = 0;
+        int round = 1;
         for(int t=0; t<numSteps; t++){
-            double temperature = 1.0;
-            double threshold = 1.0;
+            if (stepsSinceLastUpdate==1000){
+                temperature = colingSchedule(round);
+                round++;
+            }
+            stepsSinceLastUpdate++;
+
             LocalSearchResult result = localSearch(currentGraph, estimatedDegrees, temperature);
             if(result.isRemoved) {
                 currentSeparation = linkRegret(currentSeparation, result.modifiedLink);
@@ -41,6 +47,11 @@ public class HeuristicOptimization {
             currentGraph = currentSeparation.buildUndirectedGraph();
         }
         return currentSeparation;
+    }
+
+    private double colingSchedule(int round) {
+        double wellDepth = 50.0;
+        return wellDepth/Math.log(1.0 + round);
     }
 
     private Map<Integer,Integer> estimateDegrees(SimpleGraph<Integer, Integer[]> currentGraph, double ratio) {
