@@ -1,6 +1,8 @@
 package it.polito.arditti;
 
 import java.util.Arrays;
+import java.util.Random;
+import java.util.stream.IntStream;
 
 public class Configuration {
     private final GameForm game;
@@ -26,6 +28,14 @@ public class Configuration {
             }
         }
         this.index = -1;
+    }
+
+    public static Configuration random(GameForm gameForm) {
+        Random rand = new Random();
+        int[] actions = IntStream.range(0, gameForm.nPlayers)
+                .map(player -> rand.nextInt(gameForm.nActions[player]))
+                .toArray();
+        return new Configuration(gameForm,actions);
     }
 
     public Configuration getNext() {
