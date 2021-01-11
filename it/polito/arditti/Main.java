@@ -1,5 +1,6 @@
 package it.polito.arditti;
 
+import org.jgrapht.alg.drawing.FRLayoutAlgorithm2D;
 import org.jgrapht.generate.GnmRandomGraphGenerator;
 import org.jgrapht.graph.SimpleGraph;
 
@@ -16,11 +17,12 @@ public class Main {
         SimpleGraph<Integer, Integer[]> graph = new SimpleGraph<>(null, null, false);
         new GnmRandomGraphGenerator<Integer, Integer[]> (nPlayers,nEdges)
                 .generateGraph(graph);
+        GraphDrawer.draw(graph);
         GameForm gameForm = new GameForm(nPlayers,nActions);
         PotentialFunction potential = new PotentialFunction(gameForm,graph);
         TransitionData transitionData = new TransitionData(gameForm, pathLenght, potential);
 
-        HeuristicOptimization optimizer = new HeuristicOptimization(transitionData,nPlayers,0.1, 1000);
+        HeuristicOptimization optimizer = new HeuristicOptimization(transitionData,nPlayers,1000);
         Separation heuristicSeparation = optimizer.run(sampleSize);
         System.out.println(heuristicSeparation.toString());
 
