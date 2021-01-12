@@ -60,4 +60,9 @@ public class Transition {
         }
         return isCompatible;
     }
+
+    @Override
+    public String toString() {
+        return start.toString() + " -> " + end.toString();
+    }
 }
