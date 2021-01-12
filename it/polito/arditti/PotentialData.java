@@ -28,7 +28,7 @@ public class PotentialData {
     public Separation getSeparation() {
         Separation separation = new Separation(game.nPlayers);
         // cycle over all subsets of players
-        for (int set = 1; set<1<<game.nPlayers; set++){
+        for (int set = 0; set<1<<game.nPlayers; set++){
             Set<Integer> group = Tools.binaryToSet(set,game.nPlayers);
             boolean areDependent = this.checkDependence(group);
             if(areDependent){
@@ -118,7 +118,7 @@ public class PotentialData {
                     sum += sign*this.potentialValues.get(configuration);
                     sign=-sign;
                 }
-                if( sum != 0){
+                if( sum != 0.0){
                     areDependent = true;
                     return areDependent;
                 }

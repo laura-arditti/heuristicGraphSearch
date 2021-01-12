@@ -7,6 +7,7 @@ import org.jgrapht.util.SupplierUtil;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class Separation {
     protected final Set<Set<Integer>> groups;
@@ -60,8 +61,8 @@ public class Separation {
         Set<Integer> neighborhood = new HashSet<>();
         for (Set<Integer> group : this.groups) {
             if (group.contains(player)){
-                group.remove(player);
-                neighborhood.addAll(group);
+                neighborhood.addAll(group.stream()
+                        .filter(e->e!=player).collect(Collectors.toList()));
             }
             }
         return neighborhood;

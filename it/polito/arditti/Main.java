@@ -21,23 +21,21 @@ public class Main {
         new GnmRandomGraphGenerator<Integer, DefaultEdge> (nPlayers,nEdges)
                 .generateGraph(graph);
         System.out.println("Random graph generated");
-        for (Integer vertex : graph.vertexSet()){
-            System.out.println(vertex.toString());
-        }
-        for (DefaultEdge edge : graph.edgeSet()){
-            System.out.println(edge.toString());
-        }
+        System.out.println(graph.toString());
         //GraphDrawer.draw(graph);
         GameForm gameForm = new GameForm(nPlayers,nActions);
-        System.out.println(gameForm.getNConfigurations());
+        System.out.println("Number of configurations: " + gameForm.getNConfigurations());
         PotentialFunction potential = new PotentialFunction(gameForm,graph);
         System.out.println(potential.toString());
         TransitionData transitionData = new TransitionData(gameForm, pathLenght, potential);
         System.out.println(transitionData.toString());
+        Separation benchmark = transitionData.toPotentialData().getSeparation();
 
-        /*HeuristicOptimization optimizer = new HeuristicOptimization(transitionData,nPlayers,2000);
-        Separation heuristicSeparation = optimizer.run(sampleSize);
-        System.out.println(heuristicSeparation.toString());*/
+        HeuristicOptimization optimizer = new HeuristicOptimization(transitionData,nPlayers,2000);
+        OptimizationResult heuristicResult = optimizer.run(sampleSize);
+        System.out.println(heuristicResult.graph.toString());
+        System.out.println("Heuristic separation: \n" + heuristicResult.separation.toString());
+        System.out.println("Exact separation given transition data: \n" + benchmark.toString());
 
     }
 
