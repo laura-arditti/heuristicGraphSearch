@@ -58,10 +58,10 @@ public class PotentialFunction {
     @Override
     public String toString() {
         Configuration configuration = new Configuration(gameForm);
-        String result = "Configuration : Potential \n";
+        StringBuffer result = new StringBuffer("Configuration : Potential \n");
         while(true){
             Double potential = getPotential(configuration);
-            result += (configuration.toString() + ":" + potential.toString() + "\n");
+            result.append(configuration.toString() + ":" + potential.toString() + "\n");
             if (!configuration.hasNext()){
                 break;
             }
@@ -70,6 +70,6 @@ public class PotentialFunction {
             }
         }
 
-        return result;
+        return result.toString();
     }
 }

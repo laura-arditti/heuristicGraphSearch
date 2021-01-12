@@ -66,4 +66,13 @@ public class TransitionData {
         }
         return compatibleTransitions;
     }
+
+    @Override
+    public String toString() {
+        StringBuffer result = new StringBuffer("Transition path: \n");
+        for (Transition transition : path){
+            result.append(transition.toString() + "\n");
+        }
+        return result.toString();
+    }
 }
