@@ -84,4 +84,9 @@ public class Configuration {
         newActions[movingPlayer]=newAction;
         return new Configuration(gameForm,newActions);
     }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(actions);
+    }
 }
