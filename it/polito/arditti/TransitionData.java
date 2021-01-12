@@ -23,6 +23,7 @@ public class TransitionData {
                     potential.getPotential(end) - potential.getPotential(start);
             Transition transition = new Transition(gameForm, start, end, potentialChange);
             this.path.add(transition);
+            start=end;
         }
     }
 

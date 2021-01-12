@@ -61,12 +61,12 @@ public class PotentialFunction {
         StringBuffer result = new StringBuffer("Configuration : Potential \n");
         while(true){
             Double potential = getPotential(configuration);
-            result.append(configuration.toString() + ":" + potential.toString() + "\n");
-            if (!configuration.hasNext()){
-                break;
+            result.append(configuration.toString() + " : " + potential.toString() + "\n");
+            if (configuration.hasNext()){
+                configuration = configuration.getNext();
             }
             else {
-                configuration = configuration.getNext();
+                break;
             }
         }
 
