@@ -5,7 +5,6 @@ import org.jgrapht.graph.SimpleGraph;
 import org.jgrapht.util.SupplierUtil;
 
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class HeuristicOptimization {
@@ -26,20 +25,23 @@ public class HeuristicOptimization {
 
 
 
-    public Separation run(int sampleSize){
+    public OptimizationResult run(int sampleSize){
         Separation currentSeparation = initializeSeparation(sampleSize);
         SimpleGraph<Integer, DefaultEdge> currentGraph = currentSeparation.buildUndirectedGraph();
         Map<Integer,Integer> estimatedDegrees = estimateDegrees(currentGraph,sampleSize/(double)data.size());
-        double temperature = 1.0;
-        double threshold = 1.0;
+        double threshold = 0.1;
         int stepsSinceLastUpdate = 0;
         int round = 1;
+        double temperature = coolingSchedule(round);
         for(int t=0; t<numSteps; t++){
             if (stepsSinceLastUpdate==1000){
-                temperature = colingSchedule(round);
                 round++;
+                temperature = coolingSchedule(round);
+                stepsSinceLastUpdate=0;
             }
+            else{
             stepsSinceLastUpdate++;
+            }
 
             LocalSearchResult result = localSearch(currentGraph, estimatedDegrees, temperature);
             if(result.isRemoved) {
@@ -49,10 +51,11 @@ public class HeuristicOptimization {
             }
             currentGraph = currentSeparation.buildUndirectedGraph();
         }
-        return currentSeparation;
+        OptimizationResult result = new OptimizationResult(currentGraph,currentSeparation);
+        return result;
     }
 
-    private double colingSchedule(int round) {
+    private double coolingSchedule(int round) {
         double wellDepth = 50.0;
         return wellDepth/Math.log(1.0 + round);
     }
@@ -93,7 +96,11 @@ public class HeuristicOptimization {
                         .collect(Collectors.toSet());
                 Set<Integer> complementary = new HashSet<>(currentGraph.vertexSet());
                 complementary.removeAll(neighbors);
+                complementary.remove(selectedVertex);
                 List<Integer> nonNeighbors = complementary.stream().collect(Collectors.toList());
+                if (nonNeighbors.isEmpty()){
+                    continue;
+                }
                 Integer selectedNonNeighbor = Tools.getRandomFromList(nonNeighbors);
                 SimpleGraph<Integer,DefaultEdge> candidate = new SimpleGraph<Integer,DefaultEdge>(SupplierUtil.createIntegerSupplier(), SupplierUtil.createDefaultEdgeSupplier(),false);
                 for(Integer vertex : currentGraph.vertexSet()){
@@ -115,7 +122,7 @@ public class HeuristicOptimization {
                 List<Integer> neighbors = currentGraph.outgoingEdgesOf(selectedVertex)
                         .stream().map(edge-> finalCurrentGraph2.getEdgeTarget(edge))
                         .collect(Collectors.toList());
-                if (neighbors.size()==0){
+                if (neighbors.isEmpty()){
                     continue;
                 }
                 Integer selectedNeighbor = Tools.getRandomFromList(neighbors);
@@ -161,13 +168,13 @@ public class HeuristicOptimization {
         newCliques.removeAll(involvedCliques);
         for(Set<Integer> clique : involvedCliques){
             for(Integer player : modifiedLink){
-                Set<Integer> newClique = Set.copyOf(clique);
-                newClique.remove(player);
-                // add check for maximality
+                Set<Integer> newClique = clique.stream()
+                        .filter(e->e!=player)
+                        .collect(Collectors.toSet());
                 newCliques.add(newClique);
             }
         }
-        return new Separation(nPlayers,newCliques);
+        return new Separation(nPlayers,newCliques).maximalize();
     }
 
     private Separation cliqueAnalisys(Separation currentSeparation, Integer[] modifiedLink, double threshold) {
@@ -177,8 +184,9 @@ public class HeuristicOptimization {
         Set<Set<Integer>> cliquesJ = currentSeparation.getCliques(playerJ);
         Map<Set<Integer>,Double> subcliquePriorities = new HashMap<>();
         for( Set<Integer> cliqueI : cliquesI){
-            Set<Integer> cliqueIWithoutI = Set.copyOf(cliqueI);
-            cliqueIWithoutI.remove(playerI);
+            Set<Integer> cliqueIWithoutI = cliqueI.stream()
+                    .filter(e->e!=playerI)
+                    .collect(Collectors.toSet());
             Set<Set<Integer>> powerSet = Tools.powerSet(cliqueIWithoutI);
             for (Set<Integer> K : powerSet){
                 K.add(playerI);
@@ -194,6 +202,7 @@ public class HeuristicOptimization {
             }
         }
         Set<Set<Integer>> newGroups = currentSeparation.getCliques();
+        newGroups.add(Set.of(modifiedLink));
         for (Set<Integer> subcliqueI : subcliquePriorities.keySet()){
             if (subcliquePriorities.get(subcliqueI)> threshold){
                 Set<Integer> candidate = new HashSet<>(subcliqueI);
@@ -204,12 +213,12 @@ public class HeuristicOptimization {
                     candidate.remove(playerJ);
                     newGroups.remove(candidate);
                 }
-                else{
+                /*else{
                     newGroups.add(Set.of(modifiedLink));
-                }
+                }*/
             }
         }
-        return new Separation(nPlayers,newGroups);
+        return new Separation(nPlayers,newGroups).maximalize();
     }
 
 
