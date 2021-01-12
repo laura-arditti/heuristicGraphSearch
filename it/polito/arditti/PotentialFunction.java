@@ -1,6 +1,7 @@
 package it.polito.arditti;
 
 import org.jgrapht.alg.clique.BronKerboschCliqueFinder;
+import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
 import java.util.*;
@@ -8,13 +9,13 @@ import java.util.stream.IntStream;
 
 public class PotentialFunction {
     private GameForm gameForm;
-    private SimpleGraph<Integer,Integer[]> graph;
+    private SimpleGraph<Integer,DefaultEdge> graph;
     private Map<Set<Integer>,Utility> localPotentials;
 
-    public PotentialFunction(GameForm gameForm, SimpleGraph<Integer, Integer[]> graph) {
+    public PotentialFunction(GameForm gameForm, SimpleGraph<Integer, DefaultEdge> graph) {
         this.gameForm = gameForm;
         this.graph = graph;
-        BronKerboschCliqueFinder<Integer, Integer[]> cliqueFinder = new BronKerboschCliqueFinder<>(graph);
+        BronKerboschCliqueFinder<Integer, DefaultEdge> cliqueFinder = new BronKerboschCliqueFinder<>(graph);
         Random rand = new Random();
         this.localPotentials = new HashMap<>();
         for (Set<Integer> clique : cliqueFinder){
@@ -50,7 +51,7 @@ public class PotentialFunction {
         return value;
     }
 
-    public SimpleGraph<Integer, Integer[]> getGraph() {
+    public SimpleGraph<Integer, DefaultEdge> getGraph() {
         return graph;
     }
 }

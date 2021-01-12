@@ -1,9 +1,12 @@
 package it.polito.arditti;
 
+import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.util.SupplierUtil;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class Separation {
     protected final Set<Set<Integer>> groups;
@@ -64,8 +67,8 @@ public class Separation {
         return neighborhood;
     }
 
-    public SimpleGraph<Integer,Integer[]> buildUndirectedGraph(){
-        SimpleGraph<Integer,Integer[]> graph = new SimpleGraph<Integer,Integer[]>(null,null, false);
+    public SimpleGraph<Integer, DefaultEdge> buildUndirectedGraph(){
+        SimpleGraph<Integer,DefaultEdge> graph = new SimpleGraph<Integer,DefaultEdge>(SupplierUtil.createIntegerSupplier(), SupplierUtil.createDefaultEdgeSupplier(), false);
         for (int player=0; player<nPlayers; player++){
             graph.addVertex(player);
         }

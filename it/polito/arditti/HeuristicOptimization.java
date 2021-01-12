@@ -1,8 +1,11 @@
 package it.polito.arditti;
 
+import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.util.SupplierUtil;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class HeuristicOptimization {
@@ -25,7 +28,7 @@ public class HeuristicOptimization {
 
     public Separation run(int sampleSize){
         Separation currentSeparation = initializeSeparation(sampleSize);
-        SimpleGraph<Integer,Integer[]> currentGraph = currentSeparation.buildUndirectedGraph();
+        SimpleGraph<Integer, DefaultEdge> currentGraph = currentSeparation.buildUndirectedGraph();
         Map<Integer,Integer> estimatedDegrees = estimateDegrees(currentGraph,sampleSize/(double)data.size());
         double temperature = 1.0;
         double threshold = 1.0;
@@ -54,7 +57,7 @@ public class HeuristicOptimization {
         return wellDepth/Math.log(1.0 + round);
     }
 
-    private Map<Integer,Integer> estimateDegrees(SimpleGraph<Integer, Integer[]> currentGraph, double ratio) {
+    private Map<Integer,Integer> estimateDegrees(SimpleGraph<Integer, DefaultEdge> currentGraph, double ratio) {
         Map<Integer,Integer> estimatedDegrees = new HashMap<>();
         for(Integer vertex : currentGraph.vertexSet()){
             int estimatedDegree = (int) Math.floor(currentGraph.degreeOf(vertex)*ratio);
@@ -69,7 +72,7 @@ public class HeuristicOptimization {
 
     }
 
-    private LocalSearchResult localSearch(SimpleGraph<Integer, Integer[]> currentGraph, Map<Integer, Integer> estimatedDegrees, double temperature) {
+    private LocalSearchResult localSearch(SimpleGraph<Integer, DefaultEdge> currentGraph, Map<Integer, Integer> estimatedDegrees, double temperature) {
         boolean isAccepted = false;
         List<Double> priorities = new ArrayList<Double>(Collections.nCopies(estimatedDegrees.keySet().size(), 0.0));
         for (Integer vertex : estimatedDegrees.keySet()){
@@ -84,7 +87,7 @@ public class HeuristicOptimization {
             Random rand = new Random();
             isRemoved= rand.nextBoolean();
             if(!isRemoved){
-                SimpleGraph<Integer, Integer[]> finalCurrentGraph1 = currentGraph;
+                SimpleGraph<Integer, DefaultEdge> finalCurrentGraph1 = currentGraph;
                 Set<Integer> neighbors = currentGraph.outgoingEdgesOf(selectedVertex)
                         .stream().map(edge-> finalCurrentGraph1.getEdgeTarget(edge))
                         .collect(Collectors.toSet());
@@ -92,12 +95,13 @@ public class HeuristicOptimization {
                 complementary.removeAll(neighbors);
                 List<Integer> nonNeighbors = complementary.stream().collect(Collectors.toList());
                 Integer selectedNonNeighbor = Tools.getRandomFromList(nonNeighbors);
-                SimpleGraph<Integer,Integer[]> candidate = new SimpleGraph<Integer,Integer[]>(null,null,false);
+                SimpleGraph<Integer,DefaultEdge> candidate = new SimpleGraph<Integer,DefaultEdge>(SupplierUtil.createIntegerSupplier(), SupplierUtil.createDefaultEdgeSupplier(),false);
                 for(Integer vertex : currentGraph.vertexSet()){
                     candidate.addVertex(vertex);
                 }
-                for(Integer[] edge : currentGraph.edgeSet()){
-                    candidate.addEdge(edge[0],edge[1]);
+                for(DefaultEdge edge : currentGraph.edgeSet()){
+                    candidate.addEdge(currentGraph.getEdgeSource(edge),
+                            currentGraph.getEdgeTarget(edge));
                 }
                 candidate.addEdge(selectedVertex,selectedNonNeighbor);
                 isAccepted = evaluateAcceptance(currentGraph,candidate,temperature);
@@ -107,17 +111,21 @@ public class HeuristicOptimization {
                 }
             }
             else{
-                SimpleGraph<Integer, Integer[]> finalCurrentGraph2 = currentGraph;
+                SimpleGraph<Integer, DefaultEdge> finalCurrentGraph2 = currentGraph;
                 List<Integer> neighbors = currentGraph.outgoingEdgesOf(selectedVertex)
                         .stream().map(edge-> finalCurrentGraph2.getEdgeTarget(edge))
                         .collect(Collectors.toList());
+                if (neighbors.size()==0){
+                    continue;
+                }
                 Integer selectedNeighbor = Tools.getRandomFromList(neighbors);
-                SimpleGraph<Integer,Integer[]> candidate = new SimpleGraph<Integer,Integer[]>(null,null,false);
+                SimpleGraph<Integer,DefaultEdge> candidate = new SimpleGraph<Integer,DefaultEdge>(SupplierUtil.createIntegerSupplier(),SupplierUtil.createDefaultEdgeSupplier(),false);
                 for(Integer vertex : currentGraph.vertexSet()){
                     candidate.addVertex(vertex);
                 }
-                for(Integer[] edge : currentGraph.edgeSet()){
-                    candidate.addEdge(edge[0],edge[1]);
+                for(DefaultEdge edge : currentGraph.edgeSet()){
+                    candidate.addEdge(currentGraph.getEdgeSource(edge),
+                            currentGraph.getEdgeTarget(edge));
                 }
                 candidate.removeEdge(selectedVertex,selectedNeighbor);
                 isAccepted = evaluateAcceptance(currentGraph,candidate,temperature);
@@ -130,7 +138,7 @@ public class HeuristicOptimization {
         return new LocalSearchResult(currentGraph, modifiedLink, isRemoved);
     }
 
-    private boolean evaluateAcceptance(SimpleGraph<Integer, Integer[]> currentGraph, SimpleGraph<Integer, Integer[]> candidate, double temperature) {
+    private boolean evaluateAcceptance(SimpleGraph<Integer, DefaultEdge> currentGraph, SimpleGraph<Integer, DefaultEdge> candidate, double temperature) {
         boolean isAccepted = false;
         Double currentObjective = objectiveFunction.evaluateObjective(currentGraph);
         Double candidateObjective = objectiveFunction.evaluateObjective(candidate);
