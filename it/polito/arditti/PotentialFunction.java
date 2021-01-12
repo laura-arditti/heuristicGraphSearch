@@ -54,4 +54,22 @@ public class PotentialFunction {
     public SimpleGraph<Integer, DefaultEdge> getGraph() {
         return graph;
     }
+
+    @Override
+    public String toString() {
+        Configuration configuration = new Configuration(gameForm);
+        String result = "Configuration : Potential \n";
+        while(true){
+            Double potential = getPotential(configuration);
+            result += (configuration.toString() + ":" + potential.toString() + "\n");
+            if (!configuration.hasNext()){
+                break;
+            }
+            else {
+                configuration = configuration.getNext();
+            }
+        }
+
+        return result;
+    }
 }
