@@ -20,11 +20,19 @@ public class Main {
         SimpleGraph<Integer, DefaultEdge> graph = new SimpleGraph<Integer, DefaultEdge>(SupplierUtil.createIntegerSupplier(), SupplierUtil.createDefaultEdgeSupplier(), false);
         new GnmRandomGraphGenerator<Integer, DefaultEdge> (nPlayers,nEdges)
                 .generateGraph(graph);
-        GraphDrawer.draw(graph);
+        System.out.println("Random graph generated");
+        for (Integer vertex : graph.vertexSet()){
+            System.out.println(vertex.toString());
+        }
+        for (DefaultEdge edge : graph.edgeSet()){
+            System.out.println(edge.toString());
+        }
+        //GraphDrawer.draw(graph);
         GameForm gameForm = new GameForm(nPlayers,nActions);
         PotentialFunction potential = new PotentialFunction(gameForm,graph);
         System.out.println(potential.toString());
         TransitionData transitionData = new TransitionData(gameForm, pathLenght, potential);
+        System.out.println(transitionData.toString());
 
         /*HeuristicOptimization optimizer = new HeuristicOptimization(transitionData,nPlayers,2000);
         Separation heuristicSeparation = optimizer.run(sampleSize);
