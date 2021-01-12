@@ -29,6 +29,7 @@ public class Main {
         }
         //GraphDrawer.draw(graph);
         GameForm gameForm = new GameForm(nPlayers,nActions);
+        System.out.println(gameForm.getNConfigurations());
         PotentialFunction potential = new PotentialFunction(gameForm,graph);
         System.out.println(potential.toString());
         TransitionData transitionData = new TransitionData(gameForm, pathLenght, potential);

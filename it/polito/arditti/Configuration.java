@@ -69,13 +69,13 @@ public class Configuration {
     }
 
     public boolean hasNext(){
-        return index>0;
+        return index>=0;
     }
 
     public Configuration getRandomComparable() {
         Random random = new Random();
         int movingPlayer = random.nextInt(gameForm.nPlayers);
-        int[] otherActions = IntStream.range(0,gameForm.nActions[movingPlayer]-1)
+        int[] otherActions = IntStream.range(0,gameForm.nActions[movingPlayer])
                 .filter(action -> action != actions[movingPlayer])
                 .toArray();
         int index = random.nextInt(otherActions.length);
